@@ -98,7 +98,8 @@ resource "aws_eks_addon" "this" {
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
   depends_on = [
-    aws_eks_cluster.this
+    aws_eks_cluster.this,
+    aws_eks_fargate_profile.this
   ]
 }
 
@@ -245,6 +246,15 @@ resource "aws_security_group_rule" "eks_ingress" {
   protocol                 = "-1"
   source_security_group_id = aws_eks_cluster.this.vpc_config[0].cluster_security_group_id
   security_group_id        = aws_security_group.eks.id
+}
+
+resource "aws_security_group_rule" "eks_egress" {
+  type                     = "egress"
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = "-1"
+  security_group_id        = aws_security_group.eks.id
+  cidr_blocks              = ["0.0.0.0/0"]
 }
 
 resource "aws_security_group_rule" "nginx_ingress"{
