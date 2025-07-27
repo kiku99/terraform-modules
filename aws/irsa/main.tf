@@ -11,12 +11,12 @@ data "aws_iam_policy_document" "assume_role" {
     }
     condition {
       test = "StringEquals"
-      variable = "${var.config.eks_oidc_issuer}:sub"
+      variable = trim("${var.config.eks_oidc_issuer}:sub", "https://")
       values = ["system:serviceaccount:${var.config.service_account.namespace}:${var.config.service_account.name}"]
     }
     condition {
       test = "StringEquals"
-      variable = "${var.config.eks_oidc_issuer}:aud"
+      variable = trim("${var.config.eks_oidc_issuer}:aud", "https://")
       values = ["sts.amazonaws.com"]
     }
   }
