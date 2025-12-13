@@ -83,8 +83,13 @@ gcloud compute network-endpoint-groups list
 
 3. terraform을 활용해서 main.tf에 loadbalancer 부분 주석 해제하기
 
-> [!NOTE]  
-> 웹 콘솔로 접속 - [Cloud DNS](https://console.cloud.google.com/net-services/dns/zones) - 구매한 도메인 이름으로 Zone 등록 - NS 레코드에 있는 값들을 도메인 구입했던 사이트에 가서 입력 (네임서버 교체) - 다시 Cloud DNS 로 돌아와서, A 레코드로 서브 도메인 등록 (example.your-domain.com, grafana.your-domain.com 의 2개를 권장) - A 레코드의 target ip 는 'nginx-ingress-forwarding-rule' 항목으로 연결
+> [!NOTE]
+>
+> - 웹 콘솔로 접속 - [Cloud DNS](https://console.cloud.google.com/net-services/dns/zones)
+> - 구매한 도메인 이름으로 Zone 등록
+> - NS 레코드에 있는 값들을 도메인 구입했던 사이트에 가서 입력 (네임서버 교체)
+> - 다시 Cloud DNS 로 돌아와서, A 레코드로 서브 도메인 등록 (example.your-domain.com, grafana.your-domain.com 의 2개를 권장)
+> - A 레코드의 target ip 는 'nginx-ingress-forwarding-rule' 항목으로 연결
 
 4. neg 삭제 방법 - 해당 부분은 terraform 삭제 이후, neg가 남아 있을떄 사용해주세요.
 

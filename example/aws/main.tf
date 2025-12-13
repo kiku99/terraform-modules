@@ -7,7 +7,15 @@ locals {
       })
     ]
   ])
-
+  # elbs = flatten([
+  #   for vpc in local.config.vpc : [
+  #     for elb in vpc.elbs : merge(elb, {
+  #       vpc_id = module.vpc[vpc.name].vpc_id
+  #       security_groups = [for sg in elb.security_groups : module.security_group[sg].id]
+  #       subnets = [for subnet in elb.subnets : module.vpc[vpc.name].subnets[subnet]]
+  #     })
+  #   ]
+  # ])
   eks = [for eks in local.config.eks : merge(eks, {
     vpc_id = module.vpc[eks.vpc].vpc_id
     subnet_ids = [for subnet in eks.subnet_names : module.vpc[eks.vpc].subnets[subnet]]
