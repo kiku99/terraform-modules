@@ -1,59 +1,85 @@
-variable "bucket_name" {
-    description = "The name of the S3 bucket"
-    type        = string
-}
+variable "config" {
+  description = "Configuration object for S3 bucket"
+  type = object({
+    bucket_name         = string
+    public_access_block = optional(bool, true)
+    enable_versioning   = optional(bool, false)
+    
+    # Ownership controls
+    object_ownership = optional(string, "BucketOwnerEnforced") # Recommended default
 
-# variable "bucket_acl" {
-#     description = "The ACL for the S3 bucket"
-#     type        = string
-#     default     = "private"
-# }
+    # Server-Side Encryption
+    server_side_encryption = optional(object({
+      sse_algorithm     = optional(string, "AES256")
+      kms_master_key_id = optional(string)
+    }), { sse_algorithm = "AES256" })
 
-variable "public_access_block" {
-  description = "value to block public access"
-    type        = bool
-    default     = false
-}
+    # CORS Configuration
+    cors_policy = optional(list(object({
+      allowed_headers = optional(list(string))
+      allowed_methods = list(string)
+      allowed_origins = list(string)
+      expose_headers  = optional(list(string))
+      max_age_seconds = optional(number)
+    })), [])
 
-variable "enable_versioning" {
-    description = "Enable versioning for the S3 bucket"
-    type        = bool
-    default     = false
-}
+    # Lifecycle Rules
+    lifecycle_rules = optional(list(object({
+      id      = string
+      status  = optional(string, "Enabled")
+      prefix  = optional(string)
+      
+      expiration = optional(object({
+        days = number
+      }))
+      
+      transition = optional(list(object({
+        days          = number
+        storage_class = string
+      })))
 
-variable "cors_policy" {
-  description = "cors policy for the bucket"
-  type = list(object({
-    allowed_headers = optional(list(string))
-    allowed_methods = list(string)
-    allowed_origins = list(string)
-    expose_headers  = optional(list(string))
-  }))
-    default = [
-    {
-      allowed_headers = ["*"]
-      allowed_methods = ["GET","POST","PUT"]
-      allowed_origins = ["*"]
-      expose_headers  = []
-    }
-    ]
-}
+      noncurrent_version_expiration = optional(object({
+        days = number
+      }))
 
-variable "s3_policy_statements" {
-  description = "List of policy statements for the S3 bucket"
-  type = list(object({
-    actions    = list(string)
-    resources  = list(string)
-    effect     = string
-    principals = optional(list(object({
-      type        = string
-      identifiers = list(string)
-    })))
-    condition = optional(list(object({
-      test        = string
-      variable = string
-      values     = list(string)
-    })))
-  }))
-  default = []
+      noncurrent_version_transition = optional(list(object({
+        days          = number
+        storage_class = string
+      })))
+    })), [])
+
+    # Logging
+    logging = optional(object({
+      target_bucket = string
+      target_prefix = optional(string, "log/")
+    }))
+
+    # Intelligent Tiering
+    intelligent_tiering = optional(list(object({
+      name   = string
+      status = optional(string, "Enabled")
+      tiering = list(object({
+        access_tier = string
+        days        = number
+      }))
+    })), [])
+
+    # Policy Statements
+    s3_policy_statements = optional(list(object({
+      actions    = list(string)
+      resources  = list(string)
+      effect     = string
+      principals = optional(list(object({
+        type        = string
+        identifiers = list(string)
+      })))
+      condition = optional(list(object({
+        test     = string
+        variable = string
+        values   = list(string)
+      })))
+    })), [])
+
+    tags = optional(map(string), {})
+  })
 }
